@@ -14,7 +14,8 @@ By sampling your data, running the machine learning algorithm on these samples i
 \usage{
 \method{parallelML}{default}(MLCall, MLPackage,
 			samplingSize = 0.2,numberCores = detectCores(),
-			underSample = FALSE, underSampleTarget = NULL)
+			underSample = FALSE, underSampleTarget = NULL,
+			sampleMethod = "bagging")
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -35,6 +36,9 @@ Logical wether you want to take an undersample on your desired target.
 }
   \item{underSampleTarget}{
 When you set underSample to TRUE, underSampleTarget takes your target you want to keep in every sample.  e.g.  If you have 5 elements of category1 and 100 elements of category2 and your sampleSize is 0.2, then every sample will contain 25 elements, namely the 5 of category1 and 20 of category2.
+}
+  \item{sampleMethod}{
+String which decides wether you sample on your observations (bagging) or on your variables (random).
 }
 }
 \value{
@@ -104,9 +108,32 @@ subdata <- iris[1:60,]
 parsvmmodel   <- parallelML("svm(formula = Species ~ ., data = subdata)",
                             "e1071",samplingSize = 0.8,
                             underSample = TRUE, underSampleTarget = "versicolor")
+                            
+# Get prediction                            
 parsvmpred    <- predictML("predict(parsvmmodel,newdata=subdata)",
                            "e1071","vote")
+                           
+# Check the quality                           
 table(parsvmpred,subdata$Species)
+}
+\dontrun{
+# Load the library which provides svm
+library(e1071)
+
+# Create your data
+data(iris)
+
+# Create a model
+parsvmmodel   <- parallelML("svm(formula = Species ~ ., data = iris)",
+                            "e1071",samplingSize = 0.6,
+                            sampleMethod = "random")
+                            
+# Get prediction                            
+parsvmpred    <- predictML("predict(parsvmmodel,newdata=iris)",
+                           "e1071","vote")
+                           
+# Check the quality                           
+table(parsvmpred,iris$Species)
 }
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

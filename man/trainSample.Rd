@@ -9,7 +9,8 @@ Sample data or data and output in parallel: each core provides one sample of you
 }
 \usage{
 trainSample(data, numberCores = detectCores(), samplingSize = 0.2,
-			underSample = FALSE, toPredict = NULL, underSampleTarget = NULL)
+			underSample = FALSE, toPredict = NULL, underSampleTarget = NULL,
+			sampleMethod = "bagging")
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -31,6 +32,9 @@ The column of your dataset you want to predict
   \item{underSampleTarget}{
 When you set underSample to TRUE, underSampleTarget takes your target you want to keep in every sample.  e.g.  If you have 5 elements of category1 and 100 elements of category2 and your sampleSize is 0.2, then every sample will contain 25 elements, namely the 5 of category1 and 20 of category2.
 }
+  \item{sampleMethod}{
+String which decides wether you sample on your observations (bagging) or on your variables (random).
+}
 }
 \value{
 You get a list of length numberCores.  Each core has created one item of your list, namely a data frame containing a a samplingSize size sample of data.
@@ -48,8 +52,15 @@ Under the hood this function uses \code{\link[foreach]{foreach}}, and \code{\lin
 # Create your data
 x <- data.frame(1:10,10:1)
 
-# Sampling
+# Sampling on observations
 trainSample(x,numberCores=2,samplingSize = 0.5)
+
+#Create your data
+data(iris)
+
+# Sampling on variables
+trainSample(iris,numberCores=2,samplingSize = 0.6,
+            toPredict = "Species", sampleMethod = "random")
 
 # Create your data
 data(iris)

@@ -2,8 +2,8 @@
 #' @importFrom foreach foreach %do%
 #' @export
 predictML <- function(predictCall, MLPackage, combine = "raw"){
-  if (!(combine %in% c("raw","vote"))){
-    stop("combine should be raw or vote")
+  if (!(combine %in% c("raw","vote","avg"))){
+    stop("combine should be raw, vote or avg")
   } else {
     # Get the function call and the object
     fcall  <- getCall(predictCall)
@@ -39,7 +39,29 @@ predictML <- function(predictCall, MLPackage, combine = "raw"){
                                 1,function(vec){names(sort(table(vec),decreasing=TRUE))[1]}))
       return(result)
     } else{
-      return("to do")
+      if (class(predictData[[1]][1]) %in% c("numeric","integer")){
+        
+        # calculate the average
+        result <- convertAverage(predictData)
+        return (result)
+        
+      } else if (class(attr(predictData[[1]],"probabilities")[1]) %in% c("numeric","integer")){
+        warning("Predictions were not numeric, switched to the probabilities attribute")
+        
+        # Extract the attribute probabilities
+        probabilityData <- list()
+        for (i in 1:length(predictData)){
+          probabilityData[[i]] <- attr(predictData[[i]],"probabilities")
+        }
+        
+        # Take the average
+        result <- convertAverage(probabilityData)
+        return(result)
+        
+      } else{
+        # Without numeric values, we can not calculate an average
+        stop("No numeric predictions created, average could not be made")
+      }
     }
   }
 }

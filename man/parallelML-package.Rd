@@ -1,4 +1,5 @@
 \name{parallelML-package}
+\alias{parallelML-package}
 \docType{package}
 \title{
 Parallel-Voting version of machine learning algorithms

@@ -19,7 +19,7 @@ Your call to a predict function.  The object however should be an element of cla
 A character string of the package which provides your machine learning algorithm.  This is needed since all cores should load the package.
 }
   \item{combine}{
-A character string: "raw" when you want to return a list of predictions, "vote" when you want to return the class upon which most models agree.
+A character string: "raw" when you want to return a list of predictions, "vote" when you want to return the class upon which most models agree and "avg" when you want to return the average of numeric predictions (probabilities).
 }
 }
 \value{
@@ -76,5 +76,27 @@ parTestTreePred  <- predictML("predict(parTreeModel,newdata=testData[,-1],type='
 # Check the quality
 table(parTrainTreePred,trainData$V11)
 table(parTestTreePred,testData$V11)	
+}
+\dontrun{
+# Load the library which provides svm
+library(e1071)
+
+# Create your data
+data(iris)
+data("magicData")
+
+# Get nummeric predicitions of Support Vector Machine
+parsvmmodel   <- parallelML("svm(formula = Species ~ ., data = iris,probability=TRUE)",
+                            "e1071",samplingSize = 0.8,
+                            underSample = TRUE, underSampleTarget = "versicolor")
+parsvmpred    <- predictML("predict(parsvmmodel,newdata=iris,probability=TRUE)",
+                           "e1071","avg")
+
+# Get numeric predictions of a generalized linear model
+parglmmodel   <- parallelML("glm(formula = V11 ~ ., data = trainData[,-1], 
+                                 family = binomial(link='logit'))","stats",samplingSize = 0.8)
+
+parglmpred   <- predictML("predict(parglmmodel,newdata=trainData[,-1],type='response')",
+                          "stats","avg")
 }
 }

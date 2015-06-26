@@ -4,13 +4,15 @@
 parallelML <- function(MLCall, MLPackage,
                        samplingSize = 0.2,
                        numberCores = detectCores(),
-                       underSample = FALSE, underSampleTarget = NULL) UseMethod("parallelML")
+                       underSample = FALSE, underSampleTarget = NULL,
+                       sampleMethod = "bagging") UseMethod("parallelML")
 
 #' @export
 parallelML.default <- function(MLCall, MLPackage,
                                samplingSize = 0.2,
                                numberCores = detectCores(),
-                               underSample = FALSE, underSampleTarget = NULL){
+                               underSample = FALSE, underSampleTarget = NULL,
+                               sampleMethod = "bagging"){
   # get a list of arguments
   arguments <- getArgs(MLCall)
   
@@ -42,7 +44,7 @@ parallelML.default <- function(MLCall, MLPackage,
     
     # Create random bootstrap training samples (with replacement) in parallel
     trainSamples <- trainSample(eval(data),numberCores,samplingSize,
-                                underSample, toPredict, underSampleTarget)
+                                underSample, toPredict, underSampleTarget,sampleMethod)
     
     # Create copies with the correct data
     function_call <- list()
